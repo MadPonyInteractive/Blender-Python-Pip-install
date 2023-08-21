@@ -33,12 +33,13 @@ def pip_package(pkg, install=True):
     elif platform.system() == "Linux":
         python_exe = os.path.join(sys.prefix, "sys.prefix/bin", "python")
     else:
-        raise NotImplementedError(
+        print(
             "Sorry, still not implemented for ",
             os.name,
             " - ",
             platform.system(),
         )
+        return
 
     if not install:
         # uninstall package
