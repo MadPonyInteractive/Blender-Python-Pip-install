@@ -1,35 +1,22 @@
-# Install any python module for Blender python
+# Install any python package/module into Blender
 
+This is an alternative solution to the original forked repo: 
+https://github.com/luckychris/install_blender_python_modules
 
-If you are a Blender user you might also wonder why the module you just installed for python didn't work in the Blender python console or in the python script you wrote in Blender.
+This is a usefull python function that can be called to install or uninstall pip packages directly into blender python's libraries.
 
-The reason for this is that Blender has its own python version and python libraries "inside" which it is using. 
+## Usage
 
-So to make it work in Blender too, you have to install the modules you are using for the python version in Blender as well.
+Let's say your addon needs "scipy" to function faster, then in your __init__.py file you can use:
+```python
+install_pip_package("scipy")
+```
 
-This little script shall simplify this task for you.
+Or if you then choose to not use the package anymore you can use:
+```python
+uninstall_pip_package("scipy")
+```
 
-Just copy and paste the code in your text editor in Blender, then just change this one line here:
+## Contribute
 
-    installModule("pandas")
-    
-and replace "pandas" with whatever module you want to install.
-
-Then run the script.
-
-
-
-
-
-Small remark:
-
-I am working on MacOS. So i am pretty sure it works on MacOS. I tried to implement the functionality for Linux and Windows as well. Unfortunately i couldn't test that. If there are errors, please open an issue and i try to fix that. Thank you.
-
-
----
-
-
-If you want to support my work or buy me a coffee:
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/paypalme/christophduyster)
-
+This should work in any Operating System, I tested it on Windows and it was forked from a user that tested it on MacOs but if it does not work on your system please open an issue so that I can update it and make it useful for all.
