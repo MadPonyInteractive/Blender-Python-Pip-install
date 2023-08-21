@@ -1,48 +1,67 @@
-import sys
-import subprocess
-import os
-import platform
-import bpy
+from functools import partial
 
-def isWindows():
-    return os.name == 'nt'
 
-def isMacOS():
-    return os.name == 'posix' and platform.system() == "Darwin"
+def pip_package(pkg, install=True):
+    """
+    ### Installs/Uninstalls python packages into Blender
 
-def isLinux():
-    return os.name == 'posix' and platform.system() == "Linux"
+    Install Example:
+        pip_package("scipy")
 
-def python_exec():
-    
-    if isWindows():
-        return os.path.join(sys.prefix, 'bin', 'python.exe')
-    elif isMacOS():
-    
-        try:
+    Uninstall Example:
+        pip_package("scipy", install=False)
+    """
+    import subprocess
+    import sys
+    import os
+    import platform
+    import bpy
+
+    # Determine the platform and adapt the python binary path accordingly
+    if platform.system() == "Windows":
+        python_exe = os.path.join(sys.prefix, "bin", "python.exe")
+    elif platform.system() == "Darwin":  # MacOS
+        if hasattr(bpy.app, "binary_path_python"):
             # 2.92 and older
-            path = bpy.app.binary_path_python
-        except AttributeError:
+            path = bpy.app.binary_path_python  # type: ignore
+        else:
             # 2.93 and later
             import sys
+
             path = sys.executable
-        return os.path.abspath(path)
-    elif isLinux():
-        return os.path.join(sys.prefix, 'sys.prefix/bin', 'python')
+        python_exe = os.path.abspath(path)
+    elif platform.system() == "Linux":
+        python_exe = os.path.join(sys.prefix, "sys.prefix/bin", "python")
     else:
-        print("sorry, still not implemented for ", os.name, " - ", platform.system)
+        raise NotImplementedError(
+            "Sorry, still not implemented for ",
+            os.name,
+            " - ",
+            platform.system(),
+        )
 
-
-def installModule(packageName):
+    if not install:
+        # uninstall package
+        subprocess.check_call([python_exe, "-m", "pip", "uninstall", pkg])
+        return
 
     try:
-        subprocess.call([python_exe, "import ", packageName])
+        subprocess.check_call([python_exe, "import ", pkg])
     except:
-        python_exe = python_exec()
-       # upgrade pip
-        subprocess.call([python_exe, "-m", "ensurepip"])
-        subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
-       # install required packages
-        subprocess.call([python_exe, "-m", "pip", "install", packageName])
-        
-installModule("pandas")
+        # upgrade pip
+        subprocess.check_call([python_exe, "-m", "ensurepip"])
+        subprocess.check_call(
+            [python_exe, "-m", "pip", "install", "--upgrade", "pip"]
+        )
+
+        # install required packages
+        subprocess.check_call([python_exe, "-m", "pip", "install", pkg])
+
+
+install_pip_package = partial(pip_package, install=True)
+"""Installs a pip package into Blender's python bin"""
+
+uninstall_pip_package = partial(pip_package, install=False)
+"""Uninstalls a pip package from Blender's python bin.
+Note: This is mainly useful for development purposes as you will need
+to confirm the uninstallation of the package in the terminal."""
